@@ -1,0 +1,1263 @@
+esphome:
+  name: esphome-web-704944
+  friendly_name: ESPHome Display
+  min_version: 2025.9.0
+  name_add_mac_suffix: false
+
+esp32:
+  variant: esp32s3
+  framework:
+    type: esp-idf
+
+# Todo: make icons work in lvgl
+substitutions:
+  wifi_25_icon:               "\U000F007C" # mdi-battery-30
+  wifi_50_icon:               "\U000F007E" # mdi-battery-50
+  wifi_75_icon:               "\U000F0080" # mdi-battery-70
+  wifi_100_icon:              "\U000F0079" # mdi-battery (full)
+  humidity_icon:              "\U0000e938" 
+  temperature_icon:           "\U0000e939" 
+
+color:
+  - id: color_black
+    hex: 0d0d0d
+  - id: color_steel_blue
+    hex: 606682
+  - id: color_misty_blue
+    hex: 9BA2BC
+  - id: color_green
+    hex: 5CA848
+  - id: color_red
+    hex: ff0000  
+  - id: color_white
+    hex: ffffff  
+
+# Todo: have humidity and temperature turn red color when above a threshold
+
+###############################################
+# SCRIPT – restore all labels after wake
+###############################################
+script:
+  - id: restore_display_values
+    then:
+      - lvgl.label.update:
+          id: value_pv_imported_power
+          text:
+            format: "%.0f W -->"
+            args: [id(last_grid_power)]
+
+      - lvgl.label.update:
+          id: value_pv_current_production
+          text:
+            format: "%.0f W ->"
+            args: [id(last_pv_current_production)]
+
+      - lvgl.label.update:
+          id: value_pv_battery_level
+          text:
+            format: "%.0f %% ->"
+            args: [id(last_battery_soc)]
+
+      - lvgl.label.update:
+          id: value_pv_energy_consumption
+          text:
+            format: "-> %.0f W"
+            args: [id(last_pv_energy_consumption)]
+
+      # Repeat for all other labels
+      - lvgl.label.update:
+          id: value_humidity_attic
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_attic)]
+
+      - lvgl.label.update:
+          id: value_temperature_attic
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_attic)]
+
+      - lvgl.label.update:
+          id: value_humidity_1st_office
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_1st_office)]
+
+      - lvgl.label.update:
+          id: value_temperature_1st_office
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_1st_office)]
+
+      - lvgl.label.update:
+          id: value_humidity_1st_felix
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_1st_felix)]
+
+      - lvgl.label.update:
+          id: value_temperature_1st_felix
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_1st_felix)]
+
+      - lvgl.label.update:
+          id: value_humidity_1st_bathroom
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_1st_bathroom)]
+
+      - lvgl.label.update:
+          id: value_temperature_1st_bathroom
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_1st_bathroom)]
+
+      - lvgl.label.update:
+          id: value_humidity_1st_bedroom
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_1st_bedroom)]
+
+      - lvgl.label.update:
+          id: value_temperature_1st_bedroom
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_1st_bedroom)]
+
+      - lvgl.label.update:
+          id: value_humidity_ground_livingroom
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_ground_livingroom)]
+      - lvgl.label.update:
+          id: value_humidity_base_linus_room
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_base_linus_room)]
+      - lvgl.label.update:
+          id: value_humidity_base_bathroom
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_base_bathroom)]
+      - lvgl.label.update:
+          id: value_temperature_ground_livingroom
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_ground_livingroom)]
+      - lvgl.label.update:
+          id: value_temperature_base_linus_room
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_base_linus_room)]
+      - lvgl.label.update:
+          id: value_temperature_base_bathroom
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_base_bathroom)]
+      
+      
+      
+      
+
+#  - id: blink_led_temperature_alarm
+#    mode: restart
+#    then:
+#      - output.turn_on: led
+#      - delay: 500ms
+#      - output.turn_off: led
+#      - delay: 500ms
+#  - id: blink_led_humidity_alarm
+#    mode: restart
+#    then:
+#      - output.turn_on: led
+#      - delay: 500ms
+#      - output.turn_off: led
+#      - delay: 500ms
+
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+   on_client_connected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.show: lbl_hastatus
+
+   on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.hide: lbl_hastatus
+
+# Allow Over-The-Air updates
+ota:
+- platform: esphome
+
+wifi:
+  # maybe needs networks: and then intended
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  on_connect:
+    - lvgl.label.update:
+        id: value_wifi_status
+        text_color: color_green
+  on_disconnect:
+    - lvgl.label.update:
+        id: value_wifi_status
+        text_color: color_red
+
+ch422g:
+  - id: ch422g_hub
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+i2c:
+  sda: 8
+  scl: 9
+  scan: true
+  frequency: 400kHz
+
+# Todo: keep device connected and not deepsleep (only during the night)
+# Switch to turn backlight back on
+switch:
+  - platform: gpio
+    name: backlight
+    id: display_backlight
+    pin:
+      ch422g: ch422g_hub
+      number: 2
+      mode:
+        output: true
+      inverted: False
+    restore_mode: ALWAYS_ON
+  # Antiburn Switch
+  - platform: template
+    name: Antiburn
+    id: switch_antiburn
+    icon: mdi:television-shimmer
+    optimistic: true
+    entity_category: "config"
+    turn_on_action:
+      - logger.log: "Starting Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+      - lvgl.pause:
+          show_snow: true
+    turn_off_action:
+      - logger.log: "Stopping Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+
+# Timer for Antiburn 
+time:
+  - platform: homeassistant
+    on_time:
+      - hours: 2,3,4,5
+        minutes: 5
+        seconds: 0
+        then:
+          - switch.turn_on: switch_antiburn
+      - hours: 2,3,4,5
+        minutes: 35
+        seconds: 0
+        then:
+          - switch.turn_off: switch_antiburn
+
+# Number to track backlight timeout
+number:
+  - platform: template
+    name: LVGL Screen timeout
+    optimistic: true
+    id: display_timeout
+    unit_of_measurement: "s"
+    initial_value: 60
+    restore_value: true
+    min_value: 10
+    max_value: 180
+    step: 5
+    mode: box    
+
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    interrupt_pin: 4
+    reset_pin:
+      ch422g: ch422g_hub
+      number: 1
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            #- lvgl.widget.redraw: # don't redraw or the previously received values are gone
+            - switch.turn_on: display_backlight
+            # Restore all labels
+            - script.execute: restore_display_values
+
+display:
+  - platform: rpi_dpi_rgb
+    id: rpi_disp
+    #update_interval: never
+    auto_clear_enabled: false
+    color_order: RGB
+    pclk_frequency: 16MHz
+    dimensions:
+      width: 800
+      height: 480
+    reset_pin:
+      ch422g: ch422g_hub
+      number: 3
+    enable_pin:
+      ch422g:
+      number: 2
+    de_pin:
+      number: 5
+    hsync_pin:
+      number: 46
+      ignore_strapping_warning: true
+    vsync_pin:
+      number: 3
+      ignore_strapping_warning: true
+    pclk_pin: 7
+    hsync_back_porch: 30
+    hsync_front_porch: 210
+    hsync_pulse_width: 30
+    vsync_back_porch: 4
+    vsync_front_porch: 4
+    vsync_pulse_width: 4
+    data_pins:
+      red: [1, 2, 42, 41, 40]
+      blue: [14, 38, 18, 17, 10]
+      green: [39, 0, 45, 48, 47, 21]
+
+# Draw the dashboard
+lvgl:
+  displays:
+    - rpi_disp
+  touchscreens:
+    - my_touchscreen
+  on_idle:
+    timeout: !lambda "return (id(display_timeout).state * 1000);"
+    then:
+      - logger.log: "LVGL is idle"
+      - switch.turn_off: display_backlight
+      - lvgl.pause:
+
+  pages:
+    - id: canvas_1
+      bg_color: 0x000000
+      bg_opa: 100%
+      widgets:
+        - label:
+            id: page_title
+            x: 8
+            y: 5
+            width: 780
+            height: 20
+            text: "Home Display"
+            text_color: 0x00D4FF
+            text_align: CENTER
+
+        - label:
+            id: lbl_hastatus
+            x: 14
+            y: 0
+            width: 60
+            height: 30
+            text: "\uF1EB"
+            text_color: 0xFFFFFF
+
+        - label:
+            id: label_wifi_status
+            x: 595
+            y: 5
+            width: 50
+            height: 20
+            text: "Wifi:"
+            text_color: 0xFFFFFF
+            text_align: RIGHT
+
+        - label:
+            id: value_wifi_status
+            x: 647
+            y: 5
+            width: 140
+            height: 20
+            text: "analyzing connection..."
+            text_color: 0xFFE600
+            text_align: RIGHT
+
+        - obj:
+            id: card_active
+            x: 8
+            y: 28
+            width: 780
+            height: 60
+            bg_color: 0x0F3460
+            border_color: 0x00D4FF
+            border_width: 2
+            radius: 6
+
+        - label:
+            id: label_pv
+            x: 11
+            y: 38
+            width: 100
+            height: 40
+            text: "PV"
+            text_color: 0x00FF88
+            text_font: montserrat_20
+
+        - label:
+            id: value_pv_imported_power
+            x: 169
+            y: 50
+            width: 100
+            height: 20
+            text: "grid_power"
+            text_color: 0xFFFFFF
+            text_align: LEFT
+            text_font: montserrat_16
+
+        - label:
+            id: value_pv_battery_level
+            x: 288
+            y: 60
+            width: 250
+            height: 20
+            text: "battery_soc"
+            text_color: 0xFFFFFF
+            text_align: CENTER
+            text_font: montserrat_16
+
+        - label:
+            id: value_pv_energy_consumption
+            x: 560
+            y: 50
+            width: 217
+            height: 20
+            text: "home_power_consumption"
+            text_color: 0xFFFFFF
+            text_align: RIGHT
+            text_font: montserrat_16
+
+        - label:
+            id: value_pv_current_production
+            x: 288
+            y: 34
+            width: 250
+            height: 20
+            text: "sum_power_of_all_pv_dc_inputs"
+            text_color: 0xFFFFFF
+            text_align: CENTER
+            text_font: montserrat_16
+
+        - obj:
+            id: card_sessions
+            x: 7
+            y: 90
+            width: 780
+            height: 350
+            bg_color: 0x0F3460
+            border_color: 0x00FF88
+            border_width: 1
+            radius: 6
+
+        - label:
+            id: label_humidity
+            x: 10
+            y: 100
+            width: 140
+            height: 20
+            text: "Humidity"
+            text_color: 0x00FF88
+            text_font: montserrat_20
+
+        - label:
+            id: value_humidity_attic
+            x: 280
+            y: 135
+            width: 100
+            height: 20
+            text: "attic"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_1st_office
+            x: 280
+            y: 170
+            width: 100
+            height: 18
+            text: "office"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_1st_felix
+            x: 280
+            y: 190
+            width: 100
+            height: 18
+            text: "felix room"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_1st_bathroom
+            x: 280
+            y: 210
+            width: 100
+            height: 20
+            text: "bathroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_1st_bedroom
+            x: 280
+            y: 230
+            width: 100
+            height: 20
+            text: "bedroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_ground_floor
+            x: 10
+            y: 310
+            width: 140
+            height: 30
+            text: "Ground floor"
+            text_color: 0x00FF88
+            text_font: montserrat_18
+
+        - label:
+            id: lv_label_humidity_living_room
+            x: 150
+            y: 310
+            width: 120
+            height: 20
+            text: "Livingroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_1st_felix_room
+            x: 150
+            y: 190
+            width: 120
+            height: 20
+            text: "Felix room"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_1st_bathroom
+            x: 150
+            y: 210
+            width: 120
+            height: 20
+            text: "Bathroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_1st_bedroom
+            x: 150
+            y: 230
+            width: 120
+            height: 20
+            text: "Bedroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_ground_livingroom
+            x: 280
+            y: 310
+            width: 100
+            height: 20
+            text: "livingroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_basement
+            x: 10
+            y: 380
+            width: 140
+            height: 30
+            text: "Basement"
+            text_color: 0x00FF88
+            text_font: montserrat_18
+
+        - label:
+            id: lv_label_1st_office
+            x: 150
+            y: 170
+            width: 120
+            height: 20
+            text: "Office"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_attic
+            x: 10
+            y: 135
+            width: 140
+            height: 30
+            text: "Attic"
+            text_color: 0x00FF88
+            text_font: montserrat_18
+
+        - label:
+            id: lv_label_1st_floor
+            x: 10
+            y: 170
+            width: 140
+            height: 30
+            text: "1st floor"
+            text_color: 0x00FF88
+            text_font: montserrat_18
+
+        - label:
+            id: lv_label_humidity_base_linus
+            x: 150
+            y: 380
+            width: 120
+            height: 20
+            text: "Linus room"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_base_linus_room
+            x: 280
+            y: 380
+            width: 100
+            height: 20
+            text: "Linus room"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_base_bathroom
+            x: 280
+            y: 400
+            width: 100
+            height: 20
+            text: "bathroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_humidity_base_bathroom
+            x: 150
+            y: 400
+            width: 120
+            height: 20
+            text: "Bathroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: label_temperature
+            x: 540
+            y: 100
+            width: 150
+            height: 20
+            text: "Temperature"
+            text_color: 0xFF6B35
+            text_font: montserrat_20
+
+        - label:
+            id: value_temperature_1st_office
+            x: 540
+            y: 170
+            width: 100
+            height: 18
+            text: "office"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_attic
+            x: 540
+            y: 135
+            width: 100
+            height: 18
+            text: "attic"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_1st_felix
+            x: 540
+            y: 190
+            width: 100
+            height: 18
+            text: "felix room"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_1st_bathroom
+            x: 540
+            y: 210
+            width: 100
+            height: 20
+            text: "bathroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_1st_bedroom
+            x: 540
+            y: 230
+            width: 100
+            height: 20
+            text: "bedroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_ground_livingroom
+            x: 540
+            y: 310
+            width: 100
+            height: 20
+            text: "livingroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_base_linus_room
+            x: 540
+            y: 380
+            width: 100
+            height: 20
+            text: "Linus room"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_temperature_base_bathroom
+            x: 540
+            y: 400
+            width: 100
+            height: 20
+            text: "bathroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: last_updated
+            x: 5
+            y: 452
+            width: 790
+            height: 20
+            text: "Updated: n/a"
+            text_color: 0x666666
+            text_align: CENTER
+
+
+
+            # # date time
+            # - obj: 
+            #   id: datetime_widget
+            #   y: 80
+            #   hidden: false
+            #   width: 440
+            #   height: 140
+            #   align: top_mid
+            #   clickable: false
+            #   radius: 20
+            #   pad_all: 0
+            #   bg_opa: transp
+            #   border_opa: transp
+            #   border_width: 0
+            #   shadow_opa: transp
+            #   widgets:
+            #     - label:
+            #         id: day_of_week_value
+            #         x: 40
+            #         y: 105
+            #         align: top_left
+            #         text_font: nunito_16
+            #         text_color: color_misty_blue
+            #         text: "Monday"
+            #     - label:
+            #         id: date_month_value
+            #         x: -40
+            #         y: 105
+            #         align: top_right
+            #         text_font: nunito_16
+            #         text_color: color_misty_blue
+            #         text: "31, December"
+            #     - label:
+            #         id: time_value
+            #         y: 0
+            #         align: top_mid
+            #         text_font: nunito_64
+            #         text_color: color_misty_blue
+            #         text: "23:59"
+            #     - obj:
+            #         id: datetime_widget_line
+            #         y: -50
+            #         width: 400
+            #         height: 2
+            #         align: bottom_mid
+            #         bg_color: color_misty_blue
+            #         border_opa: transp
+            #         shadow_opa: transp
+globals:
+  - id: last_grid_power
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_pv_current_production
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_battery_soc
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_pv_energy_consumption
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_attic
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_attic
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_1st_office
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_1st_office
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_1st_felix
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_1st_felix
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_1st_bathroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_1st_bathroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_1st_bedroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_1st_bedroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_ground_livingroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_base_linus_room
+    type: float
+    restore_value: yes
+    initial_value: '0'
+  
+  - id: last_humidity_base_bathroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_ground_livingroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_base_linus_room
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_temperature_base_bathroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+
+sensor:
+# Chip temperature
+#  - platform: internal_temperature
+#    name: "ESP32 Internal Temperature"
+#    id: esp32_temperature
+#    update_interval: 30s
+#    on_value:
+#      then:
+#        - lvgl.label.update:
+#            id: circle_info_widget_cpu_state_value
+#            text:
+#              format: "%.1f°"
+#              args: [id(esp32_temperature).state]
+
+  # WI-FI Signal Strength in %
+  - platform: wifi_signal
+    id: wifi_signal_percent
+    update_interval: 30s
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "Signal %"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: value_wifi_status
+            text_color: !lambda |-
+              if (id(wifi_signal_percent).state > 30) {
+                return lv_color_hex(0x5CA848);
+              }
+              return lv_color_hex(0xff0000);
+            text:
+              format: "%.1f%%"
+              args: [id(wifi_signal_percent).state]
+
+  # Home Assistant Imports
+  #  PV Inverter
+  - platform: homeassistant
+    id: grid_power
+    entity_id: sensor.hostname_wechselrichterwegner_grid_power
+    name: "Netzbezug (HA)"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_grid_power) = id(grid_power).state;
+        - lvgl.label.update:
+            id: value_pv_imported_power
+            text:
+                format: "%.0f W -->"
+                args: [id(grid_power).state]
+        - lvgl.label.update:
+            id: value_pv_imported_power
+            text_color: !lambda |-
+              if (id(grid_power).state < 5) {
+                return lv_color_hex(0x00FF00);   // green
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+
+
+  - platform: homeassistant
+    id: pv_current_production
+    entity_id: sensor.hostname_wechselrichterwegner_sum_power_of_all_pv_dc_inputs
+    name: "PV aktuelle Produktion (HA)"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_pv_current_production) = id(pv_current_production).state;
+        - lvgl.label.update:
+            id: value_pv_current_production
+            text:
+                format: "%.0f W ->"
+                args: [id(pv_current_production).state]
+
+  - platform: homeassistant
+    id: battery_soc_ha
+    entity_id: sensor.hostname_wechselrichterwegner_battery_soc
+    name: "Wechselrichter Battery SoC (HA)"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_battery_soc) = id(battery_soc_ha).state;
+        # Update the text
+        - lvgl.label.update: 
+            id: value_pv_battery_level
+            text:
+                format: "%.0f %% ->"
+                args: [id(battery_soc_ha).state]
+        # Update the color based on value
+        - lvgl.label.update:
+            id: value_pv_battery_level
+            text_color: !lambda |-
+              float soc = id(battery_soc_ha).state;
+
+              if (soc == 100) {
+                return lv_color_hex(0x00FF00);   // green
+              } else if (soc < 5) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFF00);   // yellow
+              }
+
+  - platform: homeassistant
+    id: pv_energy_consumption
+    entity_id: sensor.hostname_wechselrichterwegner_home_power
+    name: "Hausverbrauch (HA)"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_pv_energy_consumption) = id(pv_energy_consumption).state;
+        - lvgl.label.update:
+            id: value_pv_energy_consumption
+            text:
+                format: "-> %.0f W"
+                args: [id(pv_energy_consumption).state]
+
+  #  Humidity and Temperature
+  - platform: homeassistant
+    id: humidity_attic
+    entity_id: sensor.humidity_attic
+    name: "humidity attic"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_attic) = id(humidity_attic).state;
+        - lvgl.label.update:
+            id: value_humidity_attic
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_attic).state]
+  - platform: homeassistant
+    id: temperature_attic
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature_4
+    name: "temperature attic"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_attic) = id(temperature_attic).state;
+        - lvgl.label.update:
+            id: value_temperature_attic
+            text:
+                format: "%.1f °"
+                args: [id(temperature_attic).state]
+  
+  - platform: homeassistant
+    id: humidity_1st_office
+    entity_id: sensor.hygrometer_1og_office_humidity_5
+    name: "humidity 1st office"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_1st_office) = id(humidity_1st_office).state;
+        - lvgl.label.update:
+            id: value_humidity_1st_office
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_1st_office).state]
+  - platform: homeassistant
+    id: temperature_1st_office
+    entity_id: sensor.hygrometer_1og_office_temperature_5
+    name: "temperature 1st office"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_1st_office) = id(temperature_1st_office).state;
+        - lvgl.label.update:
+            id: value_temperature_1st_office
+            text:
+                format: "%.1f °"
+                args: [id(temperature_1st_office).state]
+
+  - platform: homeassistant
+    id: humidity_1st_felix
+    entity_id: sensor.hygrometer_1og_felix_humidity_5
+    name: "humidity 1st Felix"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_1st_felix) = id(humidity_1st_felix).state;
+        - lvgl.label.update:
+            id: value_humidity_1st_felix
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_1st_felix).state]
+  - platform: homeassistant
+    id: temperature_1st_felix
+    entity_id: sensor.hygrometer_1og_felix_temperature_5
+    name: "temperature 1st Felix"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_1st_felix) = id(temperature_1st_felix).state;
+        - lvgl.label.update:
+            id: value_temperature_1st_felix
+            text:
+                format: "%.1f °"
+                args: [id(temperature_1st_felix).state]
+
+  - platform: homeassistant
+    id: humidity_1st_bathroom
+    entity_id: sensor.hygrometer_1og_bad_humidity_5
+    name: "humidity 1st bathroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_1st_bathroom) = id(humidity_1st_bathroom).state;
+        - lvgl.label.update:
+            id: value_humidity_1st_bathroom
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_1st_bathroom).state]
+  - platform: homeassistant
+    id: temperature_1st_bathroom
+    entity_id: sensor.hygrometer_1og_bad_temperature_5
+    name: "temperature 1st bathroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_1st_bathroom) = id(temperature_1st_bathroom).state;
+        - lvgl.label.update:
+            id: value_temperature_1st_bathroom
+            text:
+                format: "%.1f °"
+                args: [id(temperature_1st_bathroom).state]    
+
+  - platform: homeassistant
+    id: humidity_1st_bedroom
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity
+    name: "humidity 1st bedroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_1st_bedroom) = id(humidity_1st_bedroom).state;
+        - lvgl.label.update:
+            id: value_humidity_1st_bedroom
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_1st_bedroom).state]
+  - platform: homeassistant
+    id: temperature_1st_bedroom
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature
+    name: "temperature 1st bedroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_1st_bedroom) = id(temperature_1st_bedroom).state;
+        - lvgl.label.update:
+            id: value_temperature_1st_bedroom
+            text:
+                format: "%.1f °"
+                args: [id(temperature_1st_bedroom).state] 
+
+  - platform: homeassistant
+    id: humidity_ground_livingroom
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity_3
+    name: "humidity groundfloor livingroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_ground_livingroom) = id(humidity_ground_livingroom).state;
+        - lvgl.label.update:
+            id: value_humidity_ground_livingroom
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_ground_livingroom).state]
+  - platform: homeassistant
+    id: temperature_ground_livingroom
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature_3
+    name: "temperature groundfloor livingroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_ground_livingroom) = id(temperature_ground_livingroom).state;
+        - lvgl.label.update:
+            id: value_temperature_ground_livingroom
+            text:
+                format: "%.1f °"
+                args: [id(temperature_ground_livingroom).state]
+
+  - platform: homeassistant
+    id: humidity_basement_linusroom
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity_2
+    name: "humidity basement Linus room"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_base_linus_room) = id(humidity_basement_linusroom).state;
+        - lvgl.label.update:
+            id: value_humidity_base_linus_room
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_basement_linusroom).state]
+  - platform: homeassistant
+    id: temperature_basement_linusroom
+    entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature_2
+    name: "temperature basement Linus room"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_base_linus_room) = id(temperature_basement_linusroom).state;
+        - lvgl.label.update:
+            id: value_temperature_base_linus_room
+            text:
+                format: "%.1f °"
+                args: [id(temperature_basement_linusroom).state]
+
+  - platform: homeassistant
+    id: humidity_basement_bathroom
+    entity_id: sensor.hygrometer_keller_humidity_5
+    name: "humidity basement bathroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_base_bathroom) = id(humidity_basement_bathroom).state;
+        - lvgl.label.update:
+            id: value_humidity_base_bathroom
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_basement_bathroom).state]
+  - platform: homeassistant
+    id: temperature_basement_bathroom
+    entity_id: sensor.hygrometer_keller_temperature_5
+    name: "temperature basement bathroom"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_base_bathroom) = id(temperature_basement_bathroom).state;
+        - lvgl.label.update:
+            id: value_temperature_base_bathroom
+            text:
+                format: "%.1f °"
+                args: [id(temperature_basement_bathroom).state]
