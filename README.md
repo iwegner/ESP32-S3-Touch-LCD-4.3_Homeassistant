@@ -3,6 +3,10 @@
 This project shows how to set up a homeassistant display that shows the most important or just any parameters of your homeassistant setup.
 I started the project because I didn't want to look onto my smartphone for getting the latest HA values. A display that would turn itself to sleep but with a touch quickly wake up to show the latest value was my goal.
 
+![initial version of the display](images/display_on.png)
+The image above shows the screen displaying PV status with 100% battery charged, thus exporting power. Below are humidity and temperature values. 
+
+
 ## Prerequisite
 
 * A touchscreen featuring LVGL that can be flashed with ESPHome and connects to Homeassistant: 
@@ -10,6 +14,11 @@ E.g. https://de.aliexpress.com/item/1005006241981832.html?gatewayAdapt=glo2deu
 Details can be found here: https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3
 
 * A 3D print of a matching housing. As I wanted it to be sitting on a cuboard and not hung up on the wall I had to rework one that I found. But there are plenty of display mounts and housings available for that display.
+
+![3d print of the housing](images/3dprint00.png)
+![Front of the display](images/display00.png)
+![back of the display](images/display01.png)
+
 
 * Editor to design the GUI: I used https://www.espboards.dev/tools/esphome-lvgl-designer/ to come up with a first idea and a skeleton design. 
 
