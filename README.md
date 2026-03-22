@@ -22,3 +22,8 @@ My general approach was first to get something working and then to detail it out
 I was happy first when I got HA to flash the device and ESPHome to see it. Then I made it reach out to the variables on the display itself (temperature of the device, wifi strength etc.). Then I got it to connect to the HA values and then I created a large list of temperature and humidity values from the various hygrometers placed everywhere. Additionally I added the current status of the solar system. 
 
 Once the firmware or script was in place I 3D printed the housing and connected it to USB-C. 
+
+## Lessions Learned
+* Constantly test your script with the device! I was starting to use Copilot in VSCode but the output was misleading. In the beginning I was using pages like https://esphome.io/components/display/index.html to get the syntax right. Later, Copolit could give some hints.
+* Try to optimize the "- lvgl.label.update:" calls and put all changes into one call. Otherwise the performance will be pulled down unnecessarily.
+
