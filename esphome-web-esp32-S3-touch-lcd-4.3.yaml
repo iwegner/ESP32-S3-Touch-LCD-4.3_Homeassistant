@@ -10,13 +10,13 @@ esp32:
     type: esp-idf
 
 # Todo: make icons work in lvgl
-substitutions:
-  wifi_25_icon:               "\U000F007C" # mdi-battery-30
-  wifi_50_icon:               "\U000F007E" # mdi-battery-50
-  wifi_75_icon:               "\U000F0080" # mdi-battery-70
-  wifi_100_icon:              "\U000F0079" # mdi-battery (full)
-  humidity_icon:              "\U0000e938" 
-  temperature_icon:           "\U0000e939" 
+# substitutions:
+#   wifi_25_icon:               "\U000F007C" # mdi-battery-30
+#   wifi_50_icon:               "\U000F007E" # mdi-battery-50
+#   wifi_75_icon:               "\U000F0080" # mdi-battery-70
+#   wifi_100_icon:              "\U000F0079" # mdi-battery (full)
+#   humidity_icon:              "\U0000e938" 
+#   temperature_icon:           "\U0000e939" 
 
 color:
   - id: color_black
@@ -64,7 +64,6 @@ script:
             format: "-> %.0f W"
             args: [id(last_pv_energy_consumption)]
 
-      # Repeat for all other labels
       - lvgl.label.update:
           id: value_humidity_attic
           text:
@@ -155,26 +154,6 @@ script:
           text:
             format: "%.1f °"
             args: [id(last_temperature_base_bathroom)]
-      
-      
-      
-      
-
-#  - id: blink_led_temperature_alarm
-#    mode: restart
-#    then:
-#      - output.turn_on: led
-#      - delay: 500ms
-#      - output.turn_off: led
-#      - delay: 500ms
-#  - id: blink_led_humidity_alarm
-#    mode: restart
-#    then:
-#      - output.turn_on: led
-#      - delay: 500ms
-#      - output.turn_off: led
-#      - delay: 500ms
-
 
 # Enable logging
 logger:
@@ -265,6 +244,7 @@ switch:
 # Timer for Antiburn 
 time:
   - platform: homeassistant
+    id: homeassistant_time
     on_time:
       - hours: 2,3,4,5
         minutes: 5
@@ -276,6 +256,15 @@ time:
         seconds: 0
         then:
           - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - lvgl.label.update:
+              id: time_value
+              text: !lambda 'return id(homeassistant_time).now().strftime("%H:%M");'
+          - lvgl.label.update:
+              id: last_updated
+              text: !lambda 'auto now = (double)::time(nullptr); auto diff = now - id(last_update_timestamp); char buf[50]; sprintf(buf, "Updated: %ds ago", (int)diff); return std::string(buf);'
 
 # Number to track backlight timeout
 number:
@@ -372,7 +361,15 @@ lvgl:
             text: "Home Display"
             text_color: 0x00D4FF
             text_align: CENTER
-
+        - label:
+            id: time_value
+            x: 74
+            y: 0
+            width: 200
+            height: 30
+            text_align: CENTER
+            text_color: 0xFFFFFF
+            text: "fetching..."
         - label:
             id: lbl_hastatus
             x: 14
@@ -398,7 +395,7 @@ lvgl:
             y: 5
             width: 140
             height: 20
-            text: "analyzing connection..."
+            text: "analyzing"
             text_color: 0xFFE600
             text_align: RIGHT
 
@@ -778,56 +775,6 @@ lvgl:
             text_color: 0x666666
             text_align: CENTER
 
-
-
-            # # date time
-            # - obj: 
-            #   id: datetime_widget
-            #   y: 80
-            #   hidden: false
-            #   width: 440
-            #   height: 140
-            #   align: top_mid
-            #   clickable: false
-            #   radius: 20
-            #   pad_all: 0
-            #   bg_opa: transp
-            #   border_opa: transp
-            #   border_width: 0
-            #   shadow_opa: transp
-            #   widgets:
-            #     - label:
-            #         id: day_of_week_value
-            #         x: 40
-            #         y: 105
-            #         align: top_left
-            #         text_font: nunito_16
-            #         text_color: color_misty_blue
-            #         text: "Monday"
-            #     - label:
-            #         id: date_month_value
-            #         x: -40
-            #         y: 105
-            #         align: top_right
-            #         text_font: nunito_16
-            #         text_color: color_misty_blue
-            #         text: "31, December"
-            #     - label:
-            #         id: time_value
-            #         y: 0
-            #         align: top_mid
-            #         text_font: nunito_64
-            #         text_color: color_misty_blue
-            #         text: "23:59"
-            #     - obj:
-            #         id: datetime_widget_line
-            #         y: -50
-            #         width: 400
-            #         height: 2
-            #         align: bottom_mid
-            #         bg_color: color_misty_blue
-            #         border_opa: transp
-            #         shadow_opa: transp
 globals:
   - id: last_grid_power
     type: float
@@ -929,21 +876,13 @@ globals:
     restore_value: yes
     initial_value: '0'
 
+  - id: last_update_timestamp
+    type: float
+    restore_value: no
+    initial_value: '0'
+
 
 sensor:
-# Chip temperature
-#  - platform: internal_temperature
-#    name: "ESP32 Internal Temperature"
-#    id: esp32_temperature
-#    update_interval: 30s
-#    on_value:
-#      then:
-#        - lvgl.label.update:
-#            id: circle_info_widget_cpu_state_value
-#            text:
-#              format: "%.1f°"
-#              args: [id(esp32_temperature).state]
-
   # WI-FI Signal Strength in %
   - platform: wifi_signal
     id: wifi_signal_percent
@@ -974,6 +913,7 @@ sensor:
       then:
         - lambda: |-
             id(last_grid_power) = id(grid_power).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_pv_imported_power
             text:
@@ -997,6 +937,7 @@ sensor:
       then:
         - lambda: |-
             id(last_pv_current_production) = id(pv_current_production).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_pv_current_production
             text:
@@ -1011,6 +952,7 @@ sensor:
       then:
         - lambda: |-
             id(last_battery_soc) = id(battery_soc_ha).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         # Update the text
         - lvgl.label.update: 
             id: value_pv_battery_level
@@ -1039,6 +981,7 @@ sensor:
       then:
         - lambda: |-
             id(last_pv_energy_consumption) = id(pv_energy_consumption).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_pv_energy_consumption
             text:
@@ -1054,6 +997,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_attic) = id(humidity_attic).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_attic
             text:
@@ -1067,6 +1011,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_attic) = id(temperature_attic).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_attic
             text:
@@ -1081,6 +1026,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_1st_office) = id(humidity_1st_office).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_1st_office
             text:
@@ -1094,6 +1040,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_1st_office) = id(temperature_1st_office).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_1st_office
             text:
@@ -1108,6 +1055,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_1st_felix) = id(humidity_1st_felix).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_1st_felix
             text:
@@ -1121,6 +1069,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_1st_felix) = id(temperature_1st_felix).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_1st_felix
             text:
@@ -1135,6 +1084,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_1st_bathroom) = id(humidity_1st_bathroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_1st_bathroom
             text:
@@ -1148,6 +1098,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_1st_bathroom) = id(temperature_1st_bathroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_1st_bathroom
             text:
@@ -1162,6 +1113,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_1st_bedroom) = id(humidity_1st_bedroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_1st_bedroom
             text:
@@ -1175,6 +1127,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_1st_bedroom) = id(temperature_1st_bedroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_1st_bedroom
             text:
@@ -1189,6 +1142,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_ground_livingroom) = id(humidity_ground_livingroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_ground_livingroom
             text:
@@ -1202,6 +1156,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_ground_livingroom) = id(temperature_ground_livingroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_ground_livingroom
             text:
@@ -1216,6 +1171,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_base_linus_room) = id(humidity_basement_linusroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_base_linus_room
             text:
@@ -1229,6 +1185,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_base_linus_room) = id(temperature_basement_linusroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_base_linus_room
             text:
@@ -1243,6 +1200,7 @@ sensor:
       then:
         - lambda: |-
             id(last_humidity_base_bathroom) = id(humidity_basement_bathroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_humidity_base_bathroom
             text:
@@ -1256,6 +1214,7 @@ sensor:
       then:
         - lambda: |-
             id(last_temperature_base_bathroom) = id(temperature_basement_bathroom).state;
+        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_temperature_base_bathroom
             text:
