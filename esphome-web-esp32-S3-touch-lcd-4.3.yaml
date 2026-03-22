@@ -881,6 +881,42 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  # Threshold constants for color coding
+  - id: threshold_grid_power_low
+    type: float
+    restore_value: no
+    initial_value: '5'
+
+  - id: threshold_battery_soc_full
+    type: float
+    restore_value: no
+    initial_value: '100'
+
+  - id: threshold_battery_soc_low
+    type: float
+    restore_value: no
+    initial_value: '5'
+
+  - id: threshold_humidity_low
+    type: float
+    restore_value: no
+    initial_value: '35'
+
+  - id: threshold_humidity_high
+    type: float
+    restore_value: no
+    initial_value: '65'
+
+  - id: threshold_temperature_low
+    type: float
+    restore_value: no
+    initial_value: '18'
+
+  - id: threshold_temperature_high
+    type: float
+    restore_value: no
+    initial_value: '25'
+
 
 sensor:
   # WI-FI Signal Strength in %
@@ -920,7 +956,7 @@ sensor:
                 format: "%.0f W -->"
                 args: [id(grid_power).state]
             text_color: !lambda |-
-              if (id(grid_power).state < 5) {
+              if (id(grid_power).state < id(threshold_grid_power_low)) {
                 return lv_color_hex(0x00FF00);   // green
               } else {
                 return lv_color_hex(0xFFFFFF);   // white
@@ -957,9 +993,9 @@ sensor:
                 args: [id(battery_soc_ha).state]
             text_color: !lambda |-
               float soc = id(battery_soc_ha).state;
-              if (soc == 100) {
+              if (soc == id(threshold_battery_soc_full)) {
                 return lv_color_hex(0x00FF00);   // green
-              } else if (soc < 5) {
+              } else if (soc < id(threshold_battery_soc_low)) {
                 return lv_color_hex(0xFF0000);   // red
               } else {
                 return lv_color_hex(0xFFFF00);   // yellow
@@ -995,7 +1031,7 @@ sensor:
                 args: [id(humidity_attic).state]
             text_color: !lambda |-
               float hum = id(humidity_attic).state;
-              if (hum < 35 || hum > 65) {
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
                 return lv_color_hex(0xFF0000);   // red
               } else {
                 return lv_color_hex(0xFFFFFF);   // white
@@ -1013,6 +1049,13 @@ sensor:
             text:
                 format: "%.1f °"
                 args: [id(temperature_attic).state]
+            text_color: !lambda |-
+              float temp = id(temperature_attic).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   
   - platform: homeassistant
     id: humidity_1st_office
@@ -1027,6 +1070,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_1st_office).state]
+            text_color: !lambda |-
+              float hum = id(humidity_1st_office).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_1st_office
     entity_id: sensor.hygrometer_1og_office_temperature_5
@@ -1040,7 +1090,13 @@ sensor:
             text:
                 format: "%.1f °"
                 args: [id(temperature_1st_office).state]
-
+            text_color: !lambda |-
+              float temp = id(temperature_1st_office).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: humidity_1st_felix
     entity_id: sensor.hygrometer_1og_felix_humidity_5
@@ -1054,6 +1110,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_1st_felix).state]
+            text_color: !lambda |-
+              float hum = id(humidity_1st_felix).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_1st_felix
     entity_id: sensor.hygrometer_1og_felix_temperature_5
@@ -1067,7 +1130,13 @@ sensor:
             text:
                 format: "%.1f °"
                 args: [id(temperature_1st_felix).state]
-
+            text_color: !lambda |-
+              float temp = id(temperature_1st_felix).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: humidity_1st_bathroom
     entity_id: sensor.hygrometer_1og_bad_humidity_5
@@ -1081,6 +1150,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_1st_bathroom).state]
+            text_color: !lambda |-
+              float hum = id(humidity_1st_bathroom).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_1st_bathroom
     entity_id: sensor.hygrometer_1og_bad_temperature_5
@@ -1093,8 +1169,14 @@ sensor:
             id: value_temperature_1st_bathroom
             text:
                 format: "%.1f °"
-                args: [id(temperature_1st_bathroom).state]    
-
+                args: [id(temperature_1st_bathroom).state]
+            text_color: !lambda |-
+              float temp = id(temperature_1st_bathroom).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: humidity_1st_bedroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity
@@ -1108,6 +1190,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_1st_bedroom).state]
+            text_color: !lambda |-
+              float hum = id(humidity_1st_bedroom).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_1st_bedroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature
@@ -1120,8 +1209,14 @@ sensor:
             id: value_temperature_1st_bedroom
             text:
                 format: "%.1f °"
-                args: [id(temperature_1st_bedroom).state] 
-
+                args: [id(temperature_1st_bedroom).state]
+            text_color: !lambda |-
+              float temp = id(temperature_1st_bedroom).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: humidity_ground_livingroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity_3
@@ -1135,6 +1230,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_ground_livingroom).state]
+            text_color: !lambda |-
+              float hum = id(humidity_ground_livingroom).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_ground_livingroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature_3
@@ -1148,7 +1250,13 @@ sensor:
             text:
                 format: "%.1f °"
                 args: [id(temperature_ground_livingroom).state]
-
+            text_color: !lambda |-
+              float temp = id(temperature_ground_livingroom).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: humidity_basement_linusroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity_2
@@ -1162,6 +1270,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_basement_linusroom).state]
+            text_color: !lambda |-
+              float hum = id(humidity_basement_linusroom).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_basement_linusroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature_2
@@ -1175,7 +1290,13 @@ sensor:
             text:
                 format: "%.1f °"
                 args: [id(temperature_basement_linusroom).state]
-
+            text_color: !lambda |-
+              float temp = id(temperature_basement_linusroom).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: humidity_basement_bathroom
     entity_id: sensor.hygrometer_keller_humidity_5
@@ -1189,6 +1310,13 @@ sensor:
             text:
                 format: "%.1f %%"
                 args: [id(humidity_basement_bathroom).state]
+            text_color: !lambda |-
+              float hum = id(humidity_basement_bathroom).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
   - platform: homeassistant
     id: temperature_basement_bathroom
     entity_id: sensor.hygrometer_keller_temperature_5
@@ -1202,3 +1330,11 @@ sensor:
             text:
                 format: "%.1f °"
                 args: [id(temperature_basement_bathroom).state]
+            text_color: !lambda |-
+              float temp = id(temperature_basement_bathroom).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+
