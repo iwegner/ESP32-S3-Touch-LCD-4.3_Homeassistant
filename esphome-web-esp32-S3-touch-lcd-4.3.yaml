@@ -262,9 +262,6 @@ time:
           - lvgl.label.update:
               id: time_value
               text: !lambda 'return id(homeassistant_time).now().strftime("%H:%M");'
-          - lvgl.label.update:
-              id: last_updated
-              text: !lambda 'auto now = (double)::time(nullptr); auto diff = now - id(last_update_timestamp); char buf[50]; sprintf(buf, "Updated: %ds ago", (int)diff); return std::string(buf);'
 
 # Number to track backlight timeout
 number:
@@ -765,15 +762,15 @@ lvgl:
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
-        - label:
-            id: last_updated
-            x: 5
-            y: 452
-            width: 790
-            height: 20
-            text: "Updated: n/a"
-            text_color: 0x666666
-            text_align: CENTER
+        # - label:
+        #     id: last_updated
+        #     x: 5
+        #     y: 452
+        #     width: 790
+        #     height: 20
+        #     text: "Updated: n/a"
+        #     text_color: 0x666666
+        #     text_align: CENTER
 
 globals:
   - id: last_grid_power
@@ -876,11 +873,6 @@ globals:
     restore_value: yes
     initial_value: '0'
 
-  - id: last_update_timestamp
-    type: float
-    restore_value: no
-    initial_value: '0'
-
   # Threshold constants for color coding
   - id: threshold_grid_power_low
     type: float
@@ -949,7 +941,6 @@ sensor:
       then:
         - lambda: |-
             id(last_grid_power) = id(grid_power).state;
-        - lambda: id(last_update_timestamp) = (double)::time(nullptr);
         - lvgl.label.update:
             id: value_pv_imported_power
             text:

@@ -26,4 +26,5 @@ Once the firmware or script was in place I 3D printed the housing and connected 
 ## Lessions Learned
 * Constantly test your script with the device! I was starting to use Copilot in VSCode but the output was misleading. In the beginning I was using pages like https://esphome.io/components/display/index.html to get the syntax right. Later, Copolit could give some hints.
 * Try to optimize the "- lvgl.label.update:" calls and put all changes into one call. Otherwise the performance will be pulled down unnecessarily.
+* When looking at the logs in ESPHome Builder, you can see the udpate rate of the various entities coming in. Thats valuable information to see whats going on. You can understand what your script is doing and optimize it!
 
