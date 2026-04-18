@@ -930,6 +930,13 @@ sensor:
             text:
               format: "%.1f%%"
               args: [id(wifi_signal_percent).state]
+  
+  # Temperature of the device. we won't show it but good to have it on HA
+  - platform: internal_temperature
+    name: "Display Internal Temperature"
+    update_interval: 60s
+    unit_of_measurement: "°C"
+    device_class: "temperature"
 
   # Home Assistant Imports
   #  PV Inverter
