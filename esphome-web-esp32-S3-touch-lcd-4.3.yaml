@@ -145,6 +145,16 @@ script:
             format: "%.1f °"
             args: [id(last_temperature_ground_livingroom)]
       - lvgl.label.update:
+          id: value_temperature_ground_hallway
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_ground_hallway)]
+      - lvgl.label.update:
+          id: value_humidity_ground_hallway
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_ground_hallway)]
+      - lvgl.label.update:
           id: value_temperature_base_linus_room
           text:
             format: "%.1f °"
@@ -154,6 +164,36 @@ script:
           text:
             format: "%.1f °"
             args: [id(last_temperature_base_bathroom)]
+      - lvgl.label.update:
+          id: value_humidity_base_laundry
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_base_laundry)]
+      - lvgl.label.update:
+          id: value_temperature_base_laundry
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_base_laundry)]
+      - lvgl.label.update:
+          id: value_humidity_base_wood
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_base_wood)]
+      - lvgl.label.update:
+          id: value_temperature_base_wood
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_base_wood)]
+      - lvgl.label.update:
+          id: value_humidity_base_workshop
+          text:
+            format: "%.1f %%"
+            args: [id(last_humidity_base_workshop)]            
+      - lvgl.label.update:
+          id: value_temperature_base_workshop
+          text:
+            format: "%.1f °"
+            args: [id(last_temperature_base_workshop)]            
 
 # Enable logging
 logger:
@@ -466,7 +506,7 @@ lvgl:
             x: 7
             y: 90
             width: 780
-            height: 350
+            height: 380
             bg_color: 0x0F3460
             border_color: 0x00FF88
             border_width: 1
@@ -474,7 +514,7 @@ lvgl:
 
         - label:
             id: label_humidity
-            x: 10
+            x: 280
             y: 100
             width: 140
             height: 20
@@ -488,7 +528,7 @@ lvgl:
             y: 135
             width: 100
             height: 20
-            text: "attic"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -498,7 +538,7 @@ lvgl:
             y: 170
             width: 100
             height: 18
-            text: "office"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -508,7 +548,7 @@ lvgl:
             y: 190
             width: 100
             height: 18
-            text: "felix room"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -518,7 +558,7 @@ lvgl:
             y: 210
             width: 100
             height: 20
-            text: "bathroom"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -528,14 +568,14 @@ lvgl:
             y: 230
             width: 100
             height: 20
-            text: "bedroom"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
             id: lv_label_ground_floor
             x: 10
-            y: 310
+            y: 252
             width: 140
             height: 30
             text: "Ground floor"
@@ -545,10 +585,20 @@ lvgl:
         - label:
             id: lv_label_humidity_living_room
             x: 150
-            y: 310
+            y: 260
             width: 120
             height: 20
             text: "Livingroom"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_humidity_hallway
+            x: 150
+            y: 284
+            width: 120
+            height: 20
+            text: "Hallway"
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -585,17 +635,27 @@ lvgl:
         - label:
             id: value_humidity_ground_livingroom
             x: 280
-            y: 310
+            y: 260
             width: 100
             height: 20
-            text: "livingroom"
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_ground_hallway
+            x: 280
+            y: 284
+            width: 100
+            height: 20
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
             id: lv_label_basement
             x: 10
-            y: 380
+            y: 308
             width: 140
             height: 30
             text: "Basement"
@@ -635,7 +695,7 @@ lvgl:
         - label:
             id: lv_label_humidity_base_linus
             x: 150
-            y: 380
+            y: 318
             width: 120
             height: 20
             text: "Linus room"
@@ -645,30 +705,90 @@ lvgl:
         - label:
             id: value_humidity_base_linus_room
             x: 280
-            y: 380
+            y: 318
             width: 100
             height: 20
-            text: "Linus room"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
             id: value_humidity_base_bathroom
             x: 280
-            y: 400
+            y: 342
             width: 100
             height: 20
-            text: "bathroom"
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_base_laundry
+            x: 280
+            y: 366
+            width: 100
+            height: 20
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_base_wood
+            x: 280
+            y: 390
+            width: 100
+            height: 20
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: value_humidity_base_workshop
+            x: 280
+            y: 414
+            width: 100
+            height: 20
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
             id: lv_label_humidity_base_bathroom
             x: 150
-            y: 400
+            y: 342
             width: 120
             height: 20
-            text: "Bathroom"
+            text: "Bathroom base"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_humidity_base_laundry
+            x: 150
+            y: 366
+            width: 120
+            height: 20
+            text: "Laundry"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_humidity_base_wood
+            x: 150
+            y: 390
+            width: 120
+            height: 20
+            text: "Wood"
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+        - label:
+            id: lv_label_humidity_base_workshop
+            x: 150
+            y: 414
+            width: 120
+            height: 20
+            text: "Workshop"
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -688,7 +808,7 @@ lvgl:
             y: 170
             width: 100
             height: 18
-            text: "office"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -698,7 +818,7 @@ lvgl:
             y: 135
             width: 100
             height: 18
-            text: "attic"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -708,7 +828,7 @@ lvgl:
             y: 190
             width: 100
             height: 18
-            text: "felix room"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -718,7 +838,7 @@ lvgl:
             y: 210
             width: 100
             height: 20
-            text: "bathroom"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
@@ -728,49 +848,80 @@ lvgl:
             y: 230
             width: 100
             height: 20
-            text: "bedroom"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
             id: value_temperature_ground_livingroom
             x: 540
-            y: 310
+            y: 260
             width: 100
             height: 20
-            text: "livingroom"
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
-            id: value_temperature_base_linus_room
+            id: value_temperature_ground_hallway
             x: 540
-            y: 380
+            y: 284
             width: 100
             height: 20
-            text: "Linus room"
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
+
+        - label:
+            id: value_temperature_base_linus_room
+            x: 540
+            y: 318
+            width: 100
+            height: 20
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
         - label:
             id: value_temperature_base_bathroom
             x: 540
-            y: 400
+            y: 342
             width: 100
             height: 20
-            text: "bathroom"
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+        
+        - label:
+            id: value_temperature_base_laundry
+            x: 540
+            y: 366
+            width: 100
+            height: 20
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+        - label:
+            id: value_temperature_base_wood
+            x: 540
+            y: 390
+            width: 100
+            height: 20
+            text: "loading..."
             text_color: 0xFFFFFF
             text_font: montserrat_16
 
-        # - label:
-        #     id: last_updated
-        #     x: 5
-        #     y: 452
-        #     width: 790
-        #     height: 20
-        #     text: "Updated: n/a"
-        #     text_color: 0x666666
-        #     text_align: CENTER
+        - label:
+            id: value_temperature_base_workshop
+            x: 540
+            y: 414
+            width: 100
+            height: 20
+            text: "loading..."
+            text_color: 0xFFFFFF
+            text_font: montserrat_16
+
 
 globals:
   - id: last_grid_power
@@ -844,6 +995,42 @@ globals:
     initial_value: '0'
 
   - id: last_humidity_ground_livingroom
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_ground_hallway
+    type: float
+    restore_value: yes
+    initial_value: '0'
+  - id: last_temperature_ground_hallway
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_base_laundry
+    type: float
+    restore_value: yes
+    initial_value: '0'
+  - id: last_temperature_base_laundry
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_base_wood
+    type: float
+    restore_value: yes
+    initial_value: '0'
+  - id: last_temperature_base_wood
+    type: float
+    restore_value: yes
+    initial_value: '0'
+
+  - id: last_humidity_base_workshop
+    type: float
+    restore_value: yes
+    initial_value: '0'
+  - id: last_temperature_base_workshop
     type: float
     restore_value: yes
     initial_value: '0'
@@ -1235,6 +1422,28 @@ sensor:
               } else {
                 return lv_color_hex(0xFFFFFF);   // white
               }
+
+  - platform: homeassistant
+    id: humidity_ground_hallway
+    entity_id: sensor.hygrometer_diele_humidity
+    name: "humidity groundfloor hallway"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_ground_hallway) = id(humidity_ground_hallway).state;
+        - lvgl.label.update:
+            id: value_humidity_ground_hallway
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_ground_hallway).state]
+            text_color: !lambda |-
+              float hum = id(humidity_ground_hallway).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+
   - platform: homeassistant
     id: temperature_ground_livingroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_temperature_3
@@ -1255,6 +1464,29 @@ sensor:
               } else {
                 return lv_color_hex(0xFFFFFF);   // white
               }
+  - platform: homeassistant
+    id: temperature_ground_hallway
+    entity_id: sensor.hygrometer_diele_temperature
+    name: "temperature groundfloor hallway"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_ground_hallway) = id(temperature_ground_hallway).state;
+        - lvgl.label.update:
+            id: value_temperature_ground_hallway
+            text:
+                format: "%.1f °"
+                args: [id(temperature_ground_hallway).state]
+            text_color: !lambda |-
+              float temp = id(temperature_ground_hallway).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+
+
+
   - platform: homeassistant
     id: humidity_basement_linusroom
     entity_id: sensor.tz3210_ncw88jfq_ts0201_humidity_2
@@ -1335,4 +1567,125 @@ sensor:
               } else {
                 return lv_color_hex(0xFFFFFF);   // white
               }
+  - platform: homeassistant
+    id: humidity_basement_laundry
+    entity_id: sensor.hygrometer_waschkueche_humidity
+    name: "humidity basement laundry"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_base_laundry) = id(humidity_basement_laundry).state;
+        - lvgl.label.update:
+            id: value_humidity_base_laundry
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_basement_laundry).state]
+            text_color: !lambda |-
+              float hum = id(humidity_basement_laundry).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+  - platform: homeassistant
+    id: temperature_basement_laundry
+    entity_id: sensor.hygrometer_waschkueche_temperature
+    name: "temperature basement laundry"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_base_laundry) = id(temperature_basement_laundry).state;
+        - lvgl.label.update:
+            id: value_temperature_base_laundry
+            text:
+                format: "%.1f °"
+                args: [id(temperature_basement_laundry).state]
+            text_color: !lambda |-
+              float temp = id(temperature_basement_laundry).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+  - platform: homeassistant
+    id: humidity_basement_wood
+    entity_id: sensor.hygrometer_keller_holzkeller_humidity
+    name: "humidity basement wood"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_base_wood) = id(humidity_basement_wood).state;
+        - lvgl.label.update:
+            id: value_humidity_base_wood
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_basement_wood).state]
+            text_color: !lambda |-
+              float hum = id(humidity_basement_wood).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+  - platform: homeassistant
+    id: temperature_basement_wood
+    entity_id: sensor.hygrometer_keller_holzkeller_temperature
+    name: "temperature basement wood"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_base_wood) = id(temperature_basement_wood).state;
+        - lvgl.label.update:
+            id: value_temperature_base_wood
+            text:
+                format: "%.1f °"
+                args: [id(temperature_basement_wood).state]
+            text_color: !lambda |-
+              float temp = id(temperature_basement_wood).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+  - platform: homeassistant
+    id: humidity_basement_workshop
+    entity_id: sensor.telink_tlsr82xx_humidity
+    name: "humidity basement workshop"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_humidity_base_workshop) = id(humidity_basement_workshop).state;
+        - lvgl.label.update:
+            id: value_humidity_base_workshop
+            text:
+                format: "%.1f %%"
+                args: [id(humidity_basement_workshop).state]
+            text_color: !lambda |-
+              float hum = id(humidity_basement_workshop).state;
+              if (hum < id(threshold_humidity_low) || hum > id(threshold_humidity_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+  - platform: homeassistant
+    id: temperature_basement_workshop
+    entity_id: sensor.telink_tlsr82xx_temperature
+    name: "temperature basement workshop"
+    on_value:
+      then:
+        - lambda: |-
+            id(last_temperature_base_workshop) = id(temperature_basement_workshop).state;
+        - lvgl.label.update:
+            id: value_temperature_base_workshop
+            text:
+                format: "%.1f °"
+                args: [id(temperature_basement_workshop).state]
+            text_color: !lambda |-
+              float temp = id(temperature_basement_workshop).state;
+              if (temp < id(threshold_temperature_low) || temp > id(threshold_temperature_high)) {
+                return lv_color_hex(0xFF0000);   // red
+              } else {
+                return lv_color_hex(0xFFFFFF);   // white
+              }
+  
 
