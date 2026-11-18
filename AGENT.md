@@ -24,6 +24,11 @@ Hardware prerequisites: an LVGL-capable ESP32-S3 touchscreen flashable with ESPH
 (https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3), a 3D-printed housing, and optionally
 https://www.espboards.dev/tools/esphome-lvgl-designer/ for designing the GUI layout.
 
+Examples of a similar project: https://jtenniswood.github.io/espcontrol/
+Guides for ESPHome: https://esphome.io/guides/
+Documentation about ESPHome: https://esphome.io/components/
+Cookbook with tricks: https://esphome.io/cookbook/
+
 ## Build and Run
 
 There is no local build. Compilation and upload (USB cable or over-the-air) happen when you press
