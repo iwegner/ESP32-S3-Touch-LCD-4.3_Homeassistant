@@ -29,6 +29,9 @@ Guides for ESPHome: https://esphome.io/guides/
 Documentation about ESPHome: https://esphome.io/components/
 Cookbook with tricks: https://esphome.io/cookbook/
 
+Especially description for prevent burn-in of LCD: https://esphome.io/cookbook/lvgl/#prevent-burn-in-of-lcd
+Turn off screen when idle: https://esphome.io/cookbook/lvgl/#turn-off-screen-when-idle
+
 ## Build and Run
 
 There is no local build. Compilation and upload (USB cable or over-the-air) happen when you press
